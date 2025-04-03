@@ -1,0 +1,133 @@
+﻿@model TourTravelApi_Consume.Models.BookingModel
+@{
+    Layout = "~/Views/Shared/_Layout_User.cshtml";
+}
+
+@{
+    // Retrieve package details from query parameters
+    var packageId = Context.Request.Query["packageId"];
+    var packageName = Context.Request.Query["packageName"];
+    var price = Context.Request.Query["price"];
+}
+
+<div class="container-fluid booking py-5">
+    <div class="container py-5">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6">
+                <h5 class="section-booking-title pe-3">Booking</h5>
+                <h1 class="text-white mb-4">Online Booking</h1>
+                <p class="text-white mb-4">Book your dream tour with amazing discounts and offers.</p>
+                <a href="#" class="btn btn-light text-primary rounded-pill py-3 px-5 mt-2">Read More</a>
+            </div>
+
+            <div class="col-lg-6">
+                <h1 class="text-white mb-3">Book A Tour</h1>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success!</strong> @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error!</strong> @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <form asp-controller="UserPanel" asp-action="CreateBooking" method="post">
+                    <div class="row g-3">
+
+                        <!-- Customer Selection -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select asp-for="CustomerID" class="form-select bg-white border-0" required>
+                                    <option value="">Select Customer</option>
+                                    @foreach (var customer in ViewBag.Customers)
+                                    {
+                                        <option value="@customer.CustomerID">@customer.FullName</option>
+                                    }
+                                </select>
+                                <label asp-for="CustomerID">Customer</label>
+                            </div>
+                        </div>
+
+                        <!-- Package Selection -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select asp-for="PackageID" class="form-select bg-white border-0" required>
+                                    <option value="">Select Package</option>
+                                    @foreach (var package in ViewBag.Packages)
+                                    {
+                                        <option value="@package.PackageID" data-price="@package.Price">@package.PackageName</option>
+                                    }
+                                </select>
+                                <label asp-for="PackageID">Package Name</label>
+                            </div>
+                        </div>
+
+                        <!-- Total Amount (Auto-updating based on Package Selection) -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="TotalAmount" type="number" class="form-control bg-light" id="totalAmount" readonly>
+                                <label asp-for="TotalAmount">Total Amount</label>
+                            </div>
+                        </div>
+
+                       
+
+
+                        <!-- Travel Date -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="TravelDate" type="date" class="form-control bg-white border-0" required>
+                                <label asp-for="TravelDate">Travel Date</label>
+                            </div>
+                        </div>
+
+                        <!-- Number of People -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="NumberOfPeople" type="number" class="form-control bg-white border-0" placeholder="Number of People" min="1" required>
+                                <label asp-for="NumberOfPeople">Number of People</label>
+                            </div>
+                        </div>
+
+                       
+                        <!-- Booking Status -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select asp-for="Status" class="form-select bg-white border-0" required>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                                <label asp-for="Status">Booking Status</label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-12">
+                            <button class="btn btn-primary text-white w-100 py-3" type="submit">Book Now</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const packageDropdown = document.querySelector("select[name='PackageID']");
+        const totalAmountInput = document.getElementById("totalAmount");
+
+        packageDropdown.addEventListener("change", function () {
+            const selectedOption = packageDropdown.options[packageDropdown.selectedIndex];
+            const price = selectedOption.getAttribute("data-price");
+            totalAmountInput.value = price || "";
+        });
+    });
+</script>

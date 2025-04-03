@@ -1,0 +1,163 @@
+﻿@model TourTravelApi_Consume.Models.ItineraryModel
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm @((Model.ItineraryID == null) ? "Submission" : "Update")</h5>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to @((Model.ItineraryID == null) ? "submit this Itinerary?" : "update this Itinerary?")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="confirmYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Alert -->
+<div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert" style="display:none;">
+    <i class="bi bi-check-circle" style="margin-right: 10px;"></i>
+    <span id="successMessage"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@((Model.ItineraryID == null) ? "Add Itinerary" : "Edit Itinerary")</h5>
+
+        <!-- Form for Add/Edit Itinerary -->
+        <form id="itineraryForm" asp-controller="Itinerary" asp-action="Save" method="post">
+            <input type="hidden" asp-for="ItineraryID" />
+
+            <div class="row mb-3">
+                <label for="PackageID" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Package
+                </label>
+                <div class="col-sm-10">
+                    <select class="form-control" asp-for="PackageID" asp-items="@(new SelectList(ViewBag.PackageList, "PackageID", "PackageName"))"></select>
+                    <span asp-validation-for="PackageID" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="ImageUrl" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> ImageUrl
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="ImageUrl" id="ImageUrl" />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="DayNumber" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Day Number
+                </label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" asp-for="DayNumber" id="DayNumber" />
+                    <span asp-validation-for="DayNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="Activity" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Activity
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="Activity" id="Activity" />
+                    <span asp-validation-for="Activity" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="Location" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Location
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="Location" id="Location" />
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
+            </div>
+
+           @*  <div class="row mb-3">
+                <label for="Time" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Time
+                </label>
+                <div class="col-sm-10">
+                    <input type="datetime-local" class="form-control" asp-for="Time" id="Time" />
+                    <span asp-validation-for="Time" class="text-danger"></span>
+                </div>
+            </div> *@
+
+            <div class="row mb-3">
+                <div class="col-sm-10 offset-sm-2">
+                    <button type="button" class="btn btn-success" id="confirmSubmit">
+                        @((Model.ItineraryID == null) ? "Add" : "Update")
+                    </button>
+                    <a href="@Url.Action("ItineraryList", "Itinerary")" class="btn btn-info">Back</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show confirmation modal on submit button click
+            $('#confirmSubmit').on('click', function () {
+                var form = $('#itineraryForm')[0]; // Corrected the form ID
+
+                if (form && form.checkValidity()) { // Ensure form exists
+                    $('#confirmModal').modal('show');
+                } else {
+                    alert("Please fill all required fields.");
+                }
+            });
+
+            // Handle confirmation modal yes button
+            $('#confirmYes').on('click', function () {
+                $('#itineraryForm').submit(); // Corrected the form ID
+            });
+        });
+    </script>
+}
+
+@* @model TourTravelApi_Consume.Models.ItinareryModel
+
+<h2>Add/Edit Itinerary</h2>
+<form method="post" asp-action="Save">
+    <label>Package</label>
+    <select asp-for="PackageID" asp-items="@(new SelectList(ViewBag.PackageList, "PackageID", "PackageName"))"></select>
+
+    <label>Day Number</label>
+    <input asp-for="DayNumber" type="number" />
+
+    <label>Activity</label>
+    <input asp-for="Activity" />
+
+    <label>Location</label>
+    <input asp-for="Location" />
+
+   @*  <label>Time</label>
+    <input asp-for="Time" type="datetime-local" />
+ 
+    <button type="submit">Save</button>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('#PackageID').change(function () {
+            $.post('@Url.Action("GetPackageDetails")', { PackageID: $(this).val() }, function (data) {
+                alert('Package selected: ' + data.PackageName);
+            });
+        });
+    });
+</script>
+ *@

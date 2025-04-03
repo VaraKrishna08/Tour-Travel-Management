@@ -1,0 +1,172 @@
+﻿@model TourTravelApi_Consume.Models.EmployeeModel
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm @((Model.EmployeeID == null) ? "Submission" : "Update")</h5>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to @((Model.EmployeeID == null) ? "submit this Employee?" : "update this Employee?")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="confirmYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Alert -->
+<div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert" style="display:none;">
+    <i class="bi bi-check-circle" style="margin-right: 10px;"></i>
+    <span id="successMessage"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@((Model.EmployeeID == null) ? "Add Employee" : "Edit Employee")</h5>
+
+        <!-- Form for Add/Edit Employee -->
+        <form id="EmployeeForm" asp-controller="Employee" asp-action="Save" method="post">
+            <input type="hidden" asp-for="EmployeeID" />
+            <div class="row mb-3">
+                <label for="FullName" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Full Name
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="FullName" id="FullName" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+            </div>
+           @*  <div class="row mb-3">
+                <label for="Position" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Position
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="Position" id="Position" />
+                    <span asp-validation-for="Position" class="text-danger"></span>
+                </div>
+            </div> *@<div class="row mb-3">
+                <label for="Position" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Position
+                </label>
+                <div class="col-sm-10">
+                    <select class="form-control" asp-for="Position" id="Position">
+                        <option value="">Select Position</option>
+                        <option value="Finance Executive">Finance Executive</option>
+                        <option value="Driver">Driver</option>
+                        <option value="Transportation Coordinator">Transportation Coordinator</option>
+                        <option value="Tour Guide">Tour Guide</option>
+                        <option value="Tour Planner">Tour Planner</option>
+                        <option value="Manager">Manager</option>
+                    </select>
+                    <span asp-validation-for="Position" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="ContactNumber" class="col-sm-2 col-form-label">ContactNumber</label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" asp-for="ContactNumber" id="ContactNumber" />
+                    <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="Email" class="col-sm-2 col-form-label">Email</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" asp-for="Email" id="Email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="Salary" class="col-sm-2 col-form-label">Salary</label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" asp-for="Salary" id="Salary" />
+                    <span asp-validation-for="Salary" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-10 offset-sm-2">
+                    <button type="button" class="btn btn-success" id="confirmSubmit">
+                        @((Model.EmployeeID == null) ? "Add" : "Update")
+                    </button>
+                    <a href="@Url.Action("EmployeeList", "Employee")" class="btn btn-info">Back</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show confirmation modal on submit button click
+            $('#confirmSubmit').on('click', function () {
+                // Trigger client-side validation
+                if ($('#EmployeeForm')[0].checkValidity()) {
+                    // Show the confirmation modal
+                    $('#confirmModal').modal('show');
+                } else {
+                    // If validation fails, show error message
+                    alert("Please fill all required fields.");
+                }
+            });
+
+            // Handle confirmation modal yes button
+            $('#confirmYes').on('click', function () {
+                // Submit the form
+                $('#EmployeeForm').submit();
+            });
+        });
+    </script>
+}
+
+@* @section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show confirmation modal on submit button click
+            $('#confirmSubmit').on('click', function () {
+                $('#confirmModal').modal('show');
+            });
+
+            // If "Yes" is clicked in the modal, submit the form
+            $('#confirmYes').on('click', function () {
+                $('#EmployeeForm').submit();
+            });
+
+            // Handle form submission success
+            $('#EmployeeForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const formData = $(this).serialize();
+                const actionUrl = $(this).attr('action');
+
+                $.post(actionUrl, formData, function (response) {
+                    $('#confirmModal').modal('hide');
+
+                    const isAdding = !$('input[name="EmployeeID"]').val();
+                    const message = isAdding ? "Employee added successfully!" : "Employee updated successfully!";
+                    $('#successMessage').text(message);
+                    $('#successAlert').show();
+
+                    setTimeout(function () {
+                        $('#successAlert').fadeOut();
+                        if (isAdding) {
+                            location.reload(); // Reload for new entries
+                        }
+                    }, 2000);
+                }).fail(function () {
+                    alert('Error occurred while submitting the form.');
+                });
+            });
+        });
+    </script>
+}
+ *@

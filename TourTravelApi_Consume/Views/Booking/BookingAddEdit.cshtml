@@ -1,0 +1,178 @@
+﻿@model TourTravelApi_Consume.Models.BookingModel
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm @((Model.BookingID == null) ? "Submission" : "Update")</h5>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to @((Model.BookingID == null) ? "submit this Booking?" : "update this Booking?")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="confirmYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Alert -->
+<div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert" style="display:none;">
+    <i class="bi bi-check-circle" style="margin-right: 10px;"></i>
+    <span id="successMessage"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@((Model.BookingID == null) ? "Add Booking" : "Edit Booking")</h5>
+
+        <!-- Form for Add/Edit Booking -->
+        <form id="BookingForm" asp-controller="Booking" asp-action="Save" method="post">
+            <input type="hidden" asp-for="BookingID" />
+
+
+            <div class="row mb-3">
+                <label for="FullName" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Customer
+                </label>
+                <div class="col-sm-10">
+                    <select class="form-control" asp-for="CustomerID" asp-items="@(new SelectList(ViewBag.CustomerList, "CustomerID", "FullName"))"></select>
+                    <span asp-validation-for="CustomerID" class="text-danger"></span>
+                </div>
+
+            </div> <div class="row mb-3">
+                <label for="PackageName" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Package
+                </label>
+                <div class="col-sm-10">
+                    <select class="form-control" asp-for="PackageID" asp-items="@(new SelectList(ViewBag.PackageList, "PackageID", "PackageName"))"></select>
+                    <span asp-validation-for="PackageID" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="TravelDate" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> TravelDate
+                </label>
+                <div class="col-sm-10">
+                    <input type="datetime-local" class="form-control" asp-for="TravelDate" id="TravelDate" />
+                    <span asp-validation-for="TravelDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="NumberOfPeople" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> NumberOfPeople
+                </label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" asp-for="NumberOfPeople" id="NumberOfPeople" />
+                    <span asp-validation-for="NumberOfPeople" class="text-danger"></span>
+                </div>
+            </div>
+           
+            <div class="row mb-3">
+                <label for="TotalAmount" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> TotalAmount
+                </label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" asp-for="TotalAmount" id="TotalAmount" />
+                    <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="Status" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Status
+                </label>
+                <div class="col-sm-10">
+                    <select class="form-control" asp-for="Status" id="Status">
+                        <option value="">Select Model</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Cancelled">Cancelled </option>
+                    </select>                  
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div> 
+            <div class="row mb-3">
+                <div class="col-sm-10 offset-sm-2">
+                    <button type="button" class="btn btn-success" id="confirmSubmit">
+                        @((Model.BookingID == null) ? "Add" : "Update")
+                    </button>
+                    <a href="@Url.Action("BookingList", "Booking")" class="btn btn-info">Back</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show confirmation modal on submit button click
+            $('#confirmSubmit').on('click', function () {
+                // Trigger client-side validation
+                if ($('#BookingForm')[0].checkValidity()) {
+                    // Show the confirmation modal
+                    $('#confirmModal').modal('show');
+                } else {
+                    // If validation fails, show error message
+                    alert("Please fill all required fields.");
+                }
+            });
+
+            // Handle confirmation modal yes button
+            $('#confirmYes').on('click', function () {
+                // Submit the form
+                $('#BookingForm').submit();
+            });
+        });
+    </script>
+}
+
+@* @section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show confirmation modal on submit button click
+            $('#confirmSubmit').on('click', function () {
+                $('#confirmModal').modal('show');
+            });
+
+            // If "Yes" is clicked in the modal, submit the form
+            $('#confirmYes').on('click', function () {
+                $('#BookingForm').submit();
+            });
+
+            // Handle form submission success
+            $('#BookingForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const formData = $(this).serialize();
+                const actionUrl = $(this).attr('action');
+
+                $.post(actionUrl, formData, function (response) {
+                    $('#confirmModal').modal('hide');
+
+                    const isAdding = !$('input[name="BookingID"]').val();
+                    const message = isAdding ? "Booking added successfully!" : "Booking updated successfully!";
+                    $('#successMessage').text(message);
+                    $('#successAlert').show();
+
+                    setTimeout(function () {
+                        $('#successAlert').fadeOut();
+                        if (isAdding) {
+                            location.reload(); // Reload for new entries
+                        }
+                    }, 2000);
+                }).fail(function () {
+                    alert('Error occurred while submitting the form.');
+                });
+            });
+        });
+    </script>
+}
+ *@

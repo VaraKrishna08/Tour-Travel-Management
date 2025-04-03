@@ -1,0 +1,292 @@
+﻿@model IEnumerable<TourTravelApi_Consume.Models.DestinationModel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">Destination List</h2>
+
+<!-- Success and Delete Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["DeleteSuccessMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-x-circle me-2"></i>
+        @TempData["DeleteSuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Add Destination Button -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <p class="mb-0">@TempData["Message"]</p>
+    <a class="btn btn-success" asp-controller="Destination" asp-action="DestinationAddEdit">Add Destination</a>
+</div>
+
+<!-- Filters Section -->
+<div class="row g-3 mb-3">
+    <div class="col-md-3">
+        <input type="text" class="form-control" id="nameFilter" placeholder="Search by Destination Name">
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="countryFilter">
+            <option value="">Filter by Country</option>
+            @foreach (var country in Model.Select(d => d.Country).Distinct())
+            {
+                <option value="@country">@country</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="stateFilter">
+            <option value="">Filter by State</option>
+            @foreach (var state in Model.Select(d => d.State).Distinct())
+            {
+                <option value="@state">@state</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="bestTimeFilter">
+            <option value="">Best Time to Visit</option>
+            @foreach (var time in Model.Select(d => d.BestTimeToVisit).Distinct())
+            {
+                <option value="@time">@time</option>
+            }
+        </select>
+    </div>
+</div>
+
+<!-- Reset Button -->
+<div class="text-end mb-3">
+    <button class="btn btn-danger" id="resetFilters">Reset Filters</button>
+</div>
+
+<!-- Destination List Table -->
+<div class="table-responsive">
+    <table class="table table-striped table-hover shadow rounded" id="destinationTable">
+        <thead class="table-dark">
+            <tr>
+                <th>Destination Name</th>
+                <th>Image</th>
+                <th>Country</th>
+                <th>State</th>
+                <th>Description</th>
+                <th>Best Time to Visit</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="fw-bold">@item.DestinationName</td>
+                    <td>
+                        <img src="@item.ImageUrl" alt="@item.DestinationName" class="rounded shadow-sm" style="width:100px; height:auto;">
+                    </td>
+                    <td>@item.Country</td>
+                    <td>@item.State</td>
+                    <td>@item.Description</td>
+                    <td><span class="badge bg-info text-dark">@item.BestTimeToVisit</span></td>
+                    <td>
+                        <a asp-controller="Destination" asp-action="DestinationAddEdit" asp-route-DestinationID="@item.DestinationID" class="btn btn-primary btn-sm">Edit</a>
+                        <button class="btn btn-danger btn-sm" onclick="showDeletePopup(@item.DestinationID)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this destination?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function applyFilters() {
+                var nameValue = $("#nameFilter").val().toLowerCase();
+                var countryValue = $("#countryFilter").val().toLowerCase();
+                var stateValue = $("#stateFilter").val().toLowerCase();
+                var bestTimeValue = $("#bestTimeFilter").val().toLowerCase();
+
+                $("#destinationTable tbody tr").each(function () {
+                    var nameMatch = $(this).find("td").eq(0).text().toLowerCase().includes(nameValue);
+                    var countryMatch = countryValue === "" || $(this).find("td").eq(2).text().toLowerCase() === countryValue;
+                    var stateMatch = stateValue === "" || $(this).find("td").eq(3).text().toLowerCase() === stateValue;
+                    var bestTimeMatch = bestTimeValue === "" || $(this).find("td").eq(5).text().toLowerCase() === bestTimeValue;
+
+                    $(this).toggle(nameMatch && countryMatch && stateMatch && bestTimeMatch);
+                });
+            }
+
+            // Apply filters when any input changes
+            $("#nameFilter, #countryFilter, #stateFilter, #bestTimeFilter").on("input change", function () {
+                applyFilters();
+            });
+
+            // Reset filters
+            $("#resetFilters").on("click", function () {
+                $("#nameFilter, #countryFilter, #stateFilter, #bestTimeFilter").val("");
+                applyFilters();
+            });
+
+            // Auto-hide success messages after 3 seconds
+            setTimeout(function () {
+                $('.alert-dismissible').fadeOut('slow');
+            }, 3000);
+        });
+
+        // Show Delete Confirmation Modal
+        function showDeletePopup(destinationID) {
+            var deleteUrl = "/Destination/Delete?DestinationID=" + destinationID;
+            $("#confirmDeleteBtn").attr("href", deleteUrl);
+            $("#deleteModal").modal("show");
+        }
+    </script>
+}
+@* @model IEnumerable<TourTravelApi_Consume.Models.DestinationModel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">Destination List</h2>
+<div class="mb-3">
+    <input type="text" class="form-control" id="destinationSearch" placeholder="Search Any" />
+</div>
+<!-- Success and Delete Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["DeleteSuccessMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-x-circle me-2"></i>
+        @TempData["DeleteSuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<head>
+    <style>
+
+        /* Card Hover Effect */
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .card-hover:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+                background-color: #f8f9fa; /* Light hover background */
+            }
+
+        /* Card Title Styling */
+        .card-title {
+            font-size: 1.25rem;
+            color: #007bff;
+        }
+
+        /* Button Styling */
+        .btn {
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+            .btn:hover {
+                transform: scale(1.05);
+            }
+
+        /* Light Background for Card Body */
+        .card-body .bg-light {
+            background-color: blueviolet
+        }
+
+        /* Rounded Borders */
+        .rounded-lg {
+            border-radius: 15px !important;
+        }
+    </style>
+</head>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <p class="mb-0">
+        @TempData["Message"]
+    </p>
+    <a class="btn btn-success" asp-controller="Destination" asp-action="DestinationAddEdit">Add Destination</a>
+</div>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow-sm border rounded-lg h-100 card-hover" id="destinationTable">
+                <div class="card-body ">
+                    <h5 class="card-title text-primary fw-bold">@item.DestinationName</h5>
+                    <img src="https://your-image-host.com/maldives.jpg" style="width:120px; height:auto;" />
+                   Q <p class="card-text mb-2"><strong>Country:</strong> @item.Country</p>
+                    <p class="card-text mb-2"><strong>State:</strong> @item.State</p>
+                    <p class="card-text mb-2"><strong>Description:</strong> @item.Description</p>
+                    <p class="card-text mb-2"><strong>BestTimeToVisit :</strong> @item.BestTimeToVisit</p>
+                </div>
+                <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
+                    <a asp-controller="Destination" asp-action="DestinationAddEdit" asp-route-DestinationID="@item.DestinationID" class="btn btn-primary btn-sm px-3">Edit</a>
+                    <a asp-controller="Destination" asp-action="Delete" asp-route-DestinationID="@item.DestinationID" class="btn btn-danger btn-sm px-3">Delete</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () {
+                $('.alert-dismissible').fadeOut('slow');
+            }, 3000); // Auto-hide after 3 seconds
+        });
+    </script>
+    <script>
+               $(document).ready(function(){
+            $("#destinationSearch").on("keyup", function(){
+                var value = $(this).val().toLowerCase();
+                $(".card-hover").filter(function(){
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+        });
+
+    </script>
+}
+ *@

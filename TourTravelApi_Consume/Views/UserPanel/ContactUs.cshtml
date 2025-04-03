@@ -1,0 +1,123 @@
+﻿@{
+	Layout = "~/Views/Shared/_Layout_User.cshtml";
+}
+<div class="container-fluid bg-breadcrumb">
+	<div class="container text-center py-5" style="max-width: 900px;">
+		<h3 class="text-white display-3 mb-4">Contact Us</h3>
+		<ol class="breadcrumb justify-content-center mb-0">
+			<li class="breadcrumb-item"><a asp-controller="UserPanel" asp-action="Home">Home</a></li>
+			<li class="breadcrumb-item"><a href="#">Pages</a></li>
+			<li class="breadcrumb-item active text-white">Contact Us</li>
+		</ol>
+	</div>
+</div>
+<!-- Start Contact -->
+<div id="successMessage" class="alert alert-success mt-3" style="display: none; width: 75%; margin-left:200px">
+	Thank you for contacting us!
+</div>
+<div id="contact" class="contact-box">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="title-box">
+					<h2>Contact with us</h2>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-12 col-sm-12 col-xs-12">
+				<div class="contact-block">
+					<form id="contactForm">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required data-error="Please enter your name">
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group">
+									<input type="email" placeholder="Your Email" id="email" class="form-control" name="email" required data-error="Please enter your email">
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group">
+									<textarea class="form-control" id="message" name="message" placeholder="Your Message" rows="8" data-error="Write your message" required></textarea>
+									<div class="help-block with-errors"></div>
+								</div>
+								<div class="submit-button text-center">
+									<button class="btn btn-common" id="submit" type="submit">Send Message</button>
+									<div class="clearfix"></div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@* <script>
+	document.getElementById("contactForm").addEventListener("submit", async function (event) {
+		event.preventDefault();
+
+		let formData = {
+			Name: document.getElementById("name").value,
+			Email: document.getElementById("email").value,
+			Message: document.getElementById("message").value
+		};
+
+		try {
+			const response = await fetch("/Contact/SubmitForm", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(formData)
+			});
+
+			const result = await response.json();
+			if (result.success) {
+				document.getElementById("successMessage").style.display = "block";
+				document.getElementById("contactForm").reset();
+				setTimeout(() => {
+					document.getElementById("successMessage").style.display = "none";
+				}, 3000);
+			} else {
+				alert("Error submitting the form. Please try again.");
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			alert("An error occurred while submitting the form.");
+		}
+	});
+</script>
+<!-- End Contact --> *@
+<script>
+		document.getElementById("contactForm").addEventListener("submit", async function (event) {
+		event.preventDefault();
+
+		let formData = new FormData(this);  // ✅ Use FormData to send form-encoded data
+
+		try {
+			const response = await fetch("/ContactUs/SubmitForm", {  // ✅ Ensure correct URL
+				method: "POST",
+				body: formData  // ✅ Send as FormData, no need for headers
+			});
+
+			const result = await response.json();
+			if (result.success) {
+				document.getElementById("successMessage").style.display = "block";
+				document.getElementById("contactForm").reset();
+				setTimeout(() => {
+					document.getElementById("successMessage").style.display = "none";
+				}, 3000);
+			} else {
+				alert(result.message || "Error submitting the form.");
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			alert("An error occurred while submitting the form.");
+		}
+	});
+</script>

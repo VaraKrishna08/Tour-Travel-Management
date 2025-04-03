@@ -1,0 +1,165 @@
+﻿@model TourTravelApi_Consume.Models.DestinationModel
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm @((Model.DestinationID == null) ? "Submission" : "Update")</h5>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to @((Model.DestinationID == null) ? "submit this Destination?" : "update this Destination?")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="confirmYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Alert -->
+<div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert" style="display:none;">
+    <i class="bi bi-check-circle" style="margin-right: 10px;"></i>
+    <span id="successMessage"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@((Model.DestinationID == null) ? "Add Destination" : "Edit Destination")</h5>
+
+        <!-- Form for Add/Edit Destination -->
+        <form id="DestinationForm" asp-controller="Destination" asp-action="Save" method="post">
+            <input type="hidden" asp-for="DestinationID" />
+            <div class="row mb-3">
+                <label for="DestinationName" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Full Name
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="DestinationName" id="DestinationName" />
+                    <span asp-validation-for="DestinationName" class="text-danger"></span>
+                </div>
+            </div>
+
+             <div class="row mb-3">
+                <label for="ImageUrl" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> ImageUrl
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="ImageUrl" id="ImageUrl" />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="Country" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Country
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="Country" id="Country" />
+                    <span asp-validation-for="Country" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="State" class="col-sm-2 col-form-label">State</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="State" id="State" />
+                    <span asp-validation-for="State" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="Description" class="col-sm-2 col-form-label">Description</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="Description" id="Description" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="BestTimeToVisit" class="col-sm-2 col-form-label">BestTimeToVisit</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="BestTimeToVisit" id="BestTimeToVisit" />
+                    <span asp-validation-for="BestTimeToVisit" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-10 offset-sm-2">
+                    <button type="button" class="btn btn-success" id="confirmSubmit">
+                        @((Model.DestinationID == null) ? "Add" : "Update")
+                    </button>
+                    <a href="@Url.Action("DestinationList", "Destination")" class="btn btn-info">Back</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show confirmation modal on submit button click
+            $('#confirmSubmit').on('click', function () {
+                // Trigger client-side validation
+                if ($('#DestinationForm')[0].checkValidity()) {
+                    // Show the confirmation modal
+                    $('#confirmModal').modal('show');
+                } else {
+                    // If validation fails, show error message
+                    alert("Please fill all required fields.");
+                }
+            });
+
+            // Handle confirmation modal yes button
+            $('#confirmYes').on('click', function () {
+                // Submit the form
+                $('#DestinationForm').submit();
+            });
+        });
+    </script>
+}
+
+@* @section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show confirmation modal on submit button click
+            $('#confirmSubmit').on('click', function () {
+                $('#confirmModal').modal('show');
+            });
+
+            // If "Yes" is clicked in the modal, submit the form
+            $('#confirmYes').on('click', function () {
+                $('#DestinationForm').submit();
+            });
+
+            // Handle form submission success
+            $('#DestinationForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const formData = $(this).serialize();
+                const actionUrl = $(this).attr('action');
+
+                $.post(actionUrl, formData, function (response) {
+                    $('#confirmModal').modal('hide');
+
+                    const isAdding = !$('input[name="DestinationID"]').val();
+                    const message = isAdding ? "Destination added successfully!" : "Destination updated successfully!";
+                    $('#successMessage').text(message);
+                    $('#successAlert').show();
+
+                    setTimeout(function () {
+                        $('#successAlert').fadeOut();
+                        if (isAdding) {
+                            location.reload(); // Reload for new entries
+                        }
+                    }, 2000);
+                }).fail(function () {
+                    alert('Error occurred while submitting the form.');
+                });
+            });
+        });
+    </script>
+}
+ *@

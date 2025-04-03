@@ -1,0 +1,450 @@
+﻿@* @using CommonVariable;
+    @CV.UserName;
+*@
+
+@* @{
+    var userRole = Context.Session.GetString("UserRole");
+    if (userRole == "User")
+    {
+        Context.Response.Redirect("/User/Home");  // Redirect Admins
+    }
+} *@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Dashboard - Tour&TravelManagement</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="~/assets/img/favicon.png" rel="icon">
+    <link href="~/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="~/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="~/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link href="~/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="~/assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Template Main CSS File -->
+   @*  <link href="~/css/site.css" rel="stylesheet"> *@
+
+    <!-- =======================================================
+    * Template Name: NiceAdmin
+    * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
+    * Updated: Apr 20 2024 with Bootstrap v5.3.3
+    * Author: BootstrapMade.com
+    * License: https://bootstrapmade.com/license/
+    ======================================================== -->
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <style>
+        /* Sidebar Styling */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: white; /* White sidebar */
+    color: black; /* Black font */
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding-top: 20px;
+    z-index: 1000;
+    border-right: 1px solid #ddd; /* Light border for separation */
+}
+
+/* Sidebar Links */
+.sidebar .nav-link {
+    color: black;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: #f8f9fa;
+    color: black;
+}
+
+/* Fixed Header */
+.header {
+    position: fixed;
+    top: 0;
+    left: 250px; /* Adjust based on sidebar width */
+    width: calc(100% - 250px); /* Full width minus sidebar */
+    height: 60px;
+    background-color: white;
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    z-index: 1001;
+}
+
+/* Main Content Adjusted */
+.main-content {
+    margin-left: 250px; /* Same as sidebar width */
+    margin-top: 80px; /* Space for fixed header */
+    padding: 20px;
+}
+
+/* Dashboard Cards */
+.dashboard-cards {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.dashboard-card {
+    flex: 1;
+    min-width: 220px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+    </style>
+
+</head>
+<body>
+ 
+     <header id="header" class="header fixed-top d-flex align-items-center justify-content-between px-3 shadow">
+        <div class="d-flex align-items-center">
+            <a href="index.html" class="logo d-flex align-items-center text-decoration-none">
+                <i class="bi bi-compass text-primary fs-4 me-2"></i>
+                <span class="d-none d-lg-block fw-bold">Tour & Travel Management</span>
+            </a>
+            <button class="btn btn-outline-primary ms-3 d-lg-none toggle-sidebar-btn">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+        </div>
+        <a asp-controller="Customer" asp-action="Logout" class="btn btn-primary">LogOut </a>
+
+    </header>
+
+    <!-- ======= Sidebar ======= -->
+    <aside class="sidebar bg-light shadow">
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Dashboard" asp-action="DashboardUi">
+                    <i class="bi bi-house-door"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Customer" asp-action="CustomerList">
+                    <i class="bi bi-person"></i> <span>Customers</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Destination" asp-action="DestinationList">
+                    <i class="bi bi-map"></i> <span>Destinations</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Employee" asp-action="EmployeeList">
+                    <i class="bi bi-briefcase"></i> <span>Employees</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Offer" asp-action="OfferList">
+                    <i class="bi bi-gift"></i> <span>Offers</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Itinerary" asp-action="ItineraryList">
+                    <i class="bi bi-journal"></i> <span>Itineraries</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Package" asp-action="PackageList">
+                    <i class="bi bi-box-seam"></i> <span>Packages</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Booking" asp-action="BookingList">
+                    <i class="bi bi-calendar-check"></i> <span>Bookings</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Feedback" asp-action="FeedbackList">
+                    <i class="bi bi-chat-dots"></i> <span>Feedback</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Transportation" asp-action="TransportationList">
+                    <i class="bi bi-car-front"></i> <span>Transportation</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Payment" asp-action="PaymentList">
+                    <i class="bi bi-credit-card"></i> <span>Payments</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+    <div class="main-content">
+        <main role="main" class="main" id="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- ======= Footer ======= -->
+   @*  <footer id="footer" class="footer">
+        <div class="copyright">
+            &copy; Copyright <strong><span>TourAndTravelManagement</span></strong>. All Rights Reserved
+        </div>
+        <div class="credits">
+            <!-- All the links in the footer should remain intact. -->
+            <!-- You can delete the links only if you purchased the pro version. -->
+            <!-- Licensing information: https://bootstrapmade.com/license/ -->
+            <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
+            Designed by <span>KrishnaVara- 23010101659</span></a>
+        </div>
+    </footer><!-- End Footer --> *@
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Vendor JS Files -->
+    <script src="~/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="~/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="~/assets/vendor/quill/quill.js"></script>
+    <script src="~/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="~/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="~/assets/vendor/php-email-form/validate.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function () {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+    <!-- Template Main JS File -->
+    <script src="~/assets/js/main.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+@*  <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <span class="d-none d-lg-block">Tour & Travel Management</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn m-2"></i>
+        </div>
+
+
+    </header>
+    <div class="sidebar">
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link active" asp-controller="Dashboard" asp-action="DashboardUi">
+                    <i class="bi bi-house-door"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Customer" asp-action="CustomerList">
+                    <i class="bi bi-globe"></i> <span>Customer</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Destination" asp-action="DestinationList">
+                    <i class="bi bi-map"></i> <span>Destination</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Employee" asp-action="EmployeeList">
+                    <i class="bi bi-building"></i> <span>Employee</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Offer" asp-action="OfferList">
+                    <i class="bi bi-gift"></i> <span>Offer</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Itinerary" asp-action="ItineraryList">
+                    <i class="bi bi-globe"></i> <span>Itinerary</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Package" asp-action="PackageList">
+                    <i class="bi bi-box-seam"></i> <span>Package</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Booking" asp-action="BookingList">
+                    <i class="bi bi-journal"></i> <span>Booking</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Feedback" asp-action="FeedbackList">
+                    <i class="bi bi-chat-dots"></i> <span>Feedback</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Transportation" asp-action="TransportationList">
+                    <i class="bi bi-car"></i> <span>Transportation</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Payment" asp-action="PaymentList">
+                    <i class="bi bi-credit-card"></i> <span>Payment</span>
+                </a>
+            </li>
+        </ul>
+    </div> *@
+  @*<!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <span class="d-none d-lg-block">Tour & Travel Management</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn m-2"></i>
+        </div>
+
+
+    </header>
+
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            @if (Context.Session.GetString("JwtToken") != null)
+            {
+                <!-- Show Dashboard and Logout when the user is logged in -->
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Dashboard" asp-action="DashboardUi">
+                        <i class="bi bi-house-door"></i> <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Logout", "Account")">
+                        <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+                    </a>
+                </li>
+            }
+            else
+            {
+                <!-- Show Register page when the user is not logged in -->
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Register", "Account")">
+                        <i class="bi bi-person-plus"></i> <span>Register</span>
+                    </a>
+                </li>
+            }
+
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Customer" asp-action="CustomerList">
+                    <i class="bi bi-globe"></i> <span>Customer</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Destination" asp-action="DestinationList">
+                    <i class="bi bi-map"></i> <span>Destination</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Employee" asp-action="EmployeeList">
+                    <i class="bi bi-building"></i> <span>Employee</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Offer" asp-action="OfferList">
+                    <i class="bi bi-gift"></i> <span>Offer</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Itinerary" asp-action="ItineraryList">
+                    <i class="bi bi-globe"></i> <span>Itinerary</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Package" asp-action="PackageList">
+                    <i class="bi bi-box-seam"></i> <span>Package</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Booking" asp-action="BookingList">
+                    <i class="bi bi-journal"></i> <span>Booking</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Feedback" asp-action="FeedbackList">
+                    <i class="bi bi-chat-dots"></i> <span>Feedback</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Transportation" asp-action="TransportationList">
+                    <i class="bi bi-bus"></i> <span>Transportation</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Payment" asp-action="PaymentList">
+                    <i class="bi bi-credit-card"></i> <span>Payment</span>
+                </a>
+            </li>
+        </ul>
+    </aside> *@

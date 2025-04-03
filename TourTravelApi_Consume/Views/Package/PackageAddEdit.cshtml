@@ -1,0 +1,189 @@
+﻿@model TourTravelApi_Consume.Models.PackageModel
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm @((Model.PackageID == null) ? "Submission" : "Update")</h5>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to @((Model.PackageID == null) ? "submit this Package?" : "update this Package?")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="confirmYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Alert -->
+<div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert" style="display:none;">
+    <i class="bi bi-check-circle" style="margin-right: 10px;"></i>
+    <span id="successMessage"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@((Model.PackageID == null) ? "Add Package" : "Edit Package")</h5>
+
+        <!-- Form for Add/Edit Package -->
+        <form id="PackageForm" asp-controller="Package" asp-action="Save" method="post">
+            <input type="hidden" asp-for="PackageID" />
+
+           
+
+            <div class="row mb-3">
+                <label for="PackageName" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> PackageName
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="PackageName" id="PackageName" />
+                    <span asp-validation-for="PackageName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="ImageUrl" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> ImageUrl
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="ImageUrl" id="ImageUrl" />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="Description" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Description
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="Description" id="Description" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="PackageID" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Destination
+                </label>
+                <div class="col-sm-10">
+                    <select class="form-control" asp-for="DestinationID" asp-items="@(new SelectList(ViewBag.DestinationList, "DestinationID", "DestinationName"))"></select>
+                    <span asp-validation-for="DestinationID" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="Price" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Price
+                </label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" asp-for="Price" id="Price" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="Duration" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Duration
+                </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" asp-for="Duration" id="Duration" />
+                    <span asp-validation-for="Duration" class="text-danger"></span>
+                </div>
+            </div> <div class="row mb-3">
+                <label for="Status" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> Status
+                </label>
+                <div class="col-sm-10">
+                    <select class="form-control" asp-for="Status" id="PaymentMode">
+                        <option value="">Select Status</option>
+                        <option value="Available">Available</option>
+                        <option value="Unavailable">Unavailable </option>    
+                    </select>            
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+
+            
+
+            <div class="row mb-3">
+                <div class="col-sm-10 offset-sm-2">
+                    <button type="button" class="btn btn-success" id="confirmSubmit">
+                        @((Model.PackageID == null) ? "Add" : "Update")
+                    </button>
+                    <a href="@Url.Action("PackageList", "Package")" class="btn btn-info">Back</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show confirmation modal on submit button click
+            $('#confirmSubmit').on('click', function () {
+                // Trigger client-side validation
+                if ($('#PackageForm')[0].checkValidity()) {
+                    // Show the confirmation modal
+                    $('#confirmModal').modal('show');
+                } else {
+                    // If validation fails, show error message
+                    alert("Please fill all required fields.");
+                }
+            });
+
+            // Handle confirmation modal yes button
+            $('#confirmYes').on('click', function () {
+                // Submit the form
+                $('#PackageForm').submit();
+            });
+        });
+    </script>
+}
+
+@* @section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show confirmation modal on submit button click
+            $('#confirmSubmit').on('click', function () {
+                $('#confirmModal').modal('show');
+            });
+
+            // If "Yes" is clicked in the modal, submit the form
+            $('#confirmYes').on('click', function () {
+                $('#PackageForm').submit();
+            });
+
+            // Handle form submission success
+            $('#PackageForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const formData = $(this).serialize();
+                const actionUrl = $(this).attr('action');
+
+                $.post(actionUrl, formData, function (response) {
+                    $('#confirmModal').modal('hide');
+
+                    const isAdding = !$('input[name="PackageID"]').val();
+                    const message = isAdding ? "Package added successfully!" : "Package updated successfully!";
+                    $('#successMessage').text(message);
+                    $('#successAlert').show();
+
+                    setTimeout(function () {
+                        $('#successAlert').fadeOut();
+                        if (isAdding) {
+                            location.reload(); // Reload for new entries
+                        }
+                    }, 2000);
+                }).fail(function () {
+                    alert('Error occurred while submitting the form.');
+                });
+            });
+        });
+    </script>
+}
+ *@

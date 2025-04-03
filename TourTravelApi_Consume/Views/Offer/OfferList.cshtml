@@ -1,0 +1,142 @@
+﻿@model IEnumerable<TourTravelApi_Consume.Models.OfferModel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">Offer List</h2>
+<!-- Success and Delete Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["DeleteSuccessMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-x-circle me-2"></i>
+        @TempData["DeleteSuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Add Offer Button -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <p class="mb-0">@TempData["Message"]</p>
+    <a class="btn btn-success" asp-controller="Offer" asp-action="OfferAddEdit">Add Offer</a>
+</div>
+
+<!-- Filters Section -->
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <input type="text" class="form-control" id="offerNameFilter" placeholder="Search by Offer Name">
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" id="discountFilter">
+            <option value="">Filter by Discount Percentage</option>
+            @foreach (var discount in Model.Select(o => o.DiscountPercentage).Distinct())
+            {
+                <option value="@discount">@discount%</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <input type="text" class="form-control" id="packageFilter" placeholder="Search by Applicable Package">
+    </div>
+</div>
+
+<!-- Reset Button -->
+<div class="text-end mb-3">
+    <button class="btn btn-danger" id="resetFilters">Reset Filters</button>
+</div>
+
+<!-- Offer List Table -->
+<div class="table-responsive">
+    <table class="table table-striped table-hover shadow rounded" id="offerTable">
+        <thead class="table-dark">
+            <tr>
+                <th>Offer Name</th>
+                <th>Description</th>
+                <th>Discount Percentage</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Applicable Packages</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="fw-bold">@item.OfferName</td>
+                    <td>@item.Description</td>
+                    <td>@item.DiscountPercentage%</td>
+                    <td>@item.StartDate.ToShortDateString()</td>
+                    <td>@item.EndDate.ToShortDateString()</td>
+                    <td>@item.ApplicablePackages</td>
+                    <td>
+                        <a asp-controller="Offer" asp-action="OfferAddEdit" asp-route-OfferID="@item.OfferID" class="btn btn-primary btn-sm">Edit</a>
+                        <button class="btn btn-danger btn-sm" onclick="showDeletePopup(@item.OfferID)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this offer?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function applyFilters() {
+                var offerNameValue = $("#offerNameFilter").val().toLowerCase();
+                var discountValue = $("#discountFilter").val().toLowerCase();
+                var packageValue = $("#packageFilter").val().toLowerCase();
+
+                $("#offerTable tbody tr").each(function () {
+                    var offerNameMatch = $(this).find("td").eq(0).text().toLowerCase().includes(offerNameValue);
+                    var discountMatch = discountValue === "" || $(this).find("td").eq(2).text().trim().toLowerCase().includes(discountValue);
+                    var packageMatch = packageValue === "" || $(this).find("td").eq(5).text().toLowerCase().includes(packageValue);
+
+                    $(this).toggle(offerNameMatch && discountMatch && packageMatch);
+                });
+            }
+
+            $("#offerNameFilter, #discountFilter, #packageFilter").on("input change", function () {
+                applyFilters();
+            });
+
+            $("#resetFilters").on("click", function () {
+                $("#offerNameFilter, #discountFilter, #packageFilter").val("");
+                applyFilters();
+            });
+        });
+
+        function showDeletePopup(offerID) {
+            var deleteUrl = "/Offer/Delete?OfferID=" + offerID;
+            $("#confirmDeleteBtn").attr("href", deleteUrl);
+            $("#deleteModal").modal("show");
+        }
+    </script>
+}

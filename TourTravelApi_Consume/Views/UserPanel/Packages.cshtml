@@ -1,0 +1,124 @@
+﻿@model List<TourTravelApi_Consume.Models.PackageModel>
+@{
+    Layout = "~/Views/Shared/_Layout_User.cshtml";
+}
+
+<!-- Breadcrumb Section -->
+<div class="container-fluid bg-breadcrumb">
+    <div class="container text-center py-5" style="max-width: 900px;">
+        <h3 class="text-white display-3 mb-4">Travel Packages</h3>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a asp-controller="UserPanel" asp-action="Home">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Pages</a></li>
+            <li class="breadcrumb-item active text-white">Packages</li>
+        </ol>
+    </div>
+</div>
+
+<!-- Packages Section -->
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h5 class="section-title px-3">Packages</h5>
+        <h1 class="mb-0">Find Your Perfect Getaway</h1>
+    </div>
+
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var package in Model)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="card package-card shadow-sm">
+                        <!-- Package Image -->
+                        <div class="package-img position-relative">
+                            <img src="@package.ImageUrl" class="img-fluid w-100 package-img-size" alt="@package.PackageName">
+                            <div class="package-price position-absolute">$@package.Price</div>
+                        </div>
+
+                        <!-- Package Content -->
+                        <div class="card-body text-center">
+                            <h5 class="fw-bold">@package.PackageName</h5>
+                            <p class="text-muted">@package.Description</p>
+                            <div class="d-flex justify-content-between text-muted small">
+                                <span><i class="fa fa-map-marker-alt me-2"></i>@package.DestinationName</span>
+                                <span><i class="fa fa-calendar-alt me-2"></i>@package.Duration days</span>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer Buttons -->
+                        <div class="card-footer d-flex justify-content-between">
+                            <a href="#" class="btn btn-outline-primary w-50">Read More</a>
+                            <a asp-controller="UserPanel" asp-action="TourBooking"
+                               asp-route-packageId="@package.PackageID"
+                               asp-route-packageName="@package.PackageName"
+                               asp-route-price="@package.Price"
+                               class="btn btn-primary w-50">
+                                Book Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-center text-danger">No packages available.</p>
+        }
+    </div>
+</div>
+
+<!-- Custom Styling -->
+<style>
+    .package-card {
+        border-radius: 15px;
+        overflow: hidden;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+    }
+
+        .package-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+    .package-img-size {
+        height: 220px;
+        object-fit: cover;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .package-price {
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px 12px;
+        font-weight: bold;
+        border-radius: 5px;
+    }
+
+    .card-footer {
+        background: #f8f9fa;
+        border-top: 1px solid #ddd;
+        padding: 10px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border: none;
+        transition: background 0.3s;
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #0056b3, #003580);
+        }
+
+    .btn-outline-primary {
+        border: 2px solid #007bff;
+        transition: all 0.3s;
+    }
+
+        .btn-outline-primary:hover {
+            background: #007bff;
+            color: white;
+        }
+</style>

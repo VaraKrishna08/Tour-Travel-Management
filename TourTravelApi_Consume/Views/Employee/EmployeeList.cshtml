@@ -1,0 +1,147 @@
+﻿@model IEnumerable<TourTravelApi_Consume.Models.EmployeeModel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">Employee List</h2>
+
+<!-- Success and Delete Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["DeleteSuccessMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-x-circle me-2"></i>
+        @TempData["DeleteSuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Add Employee Button -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <p class="mb-0">@TempData["Message"]</p>
+    <a class="btn btn-success" asp-controller="Employee" asp-action="EmployeeAddEdit">Add Employee</a>
+</div>
+
+<!-- Filters Section -->
+<div class="row g-3 mb-3">
+    <div class="col-md-3">
+        <input type="text" class="form-control" id="nameFilter" placeholder="Search by Name">
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="positionFilter">
+            <option value="">Filter by Position</option>
+            @foreach (var position in Model.Select(e => e.Position).Distinct())
+            {
+                <option value="@position">@position</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="salaryFilter">
+            <option value="">Filter by Salary</option>
+            @foreach (var salary in Model.Select(e => e.Salary).Distinct())
+            {
+                <option value="@salary">₹@salary</option>
+            }
+        </select>
+    </div>
+</div>
+
+<!-- Reset Button -->
+<div class="text-end mb-3">
+    <button class="btn btn-danger" id="resetFilters">Reset Filters</button>
+</div>
+
+<!-- Employee List Table -->
+<div class="table-responsive">
+    <table class="table table-hover shadow-sm rounded" id="employeeTable">
+        <thead class="table-dark">
+            <tr>
+                <th>Full Name</th>
+                <th>Position</th>
+                <th>Contact Number</th>
+                <th>Email</th>
+                <th>Salary</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FullName</td>
+                    <td>@item.Position</td>
+                    <td>@item.ContactNumber</td>
+                    <td>@item.Email</td>
+                    <td>₹@item.Salary</td>
+                    <td>
+                        <a asp-controller="Employee" asp-action="EmployeeAddEdit" asp-route-EmployeeID="@item.EmployeeID" class="btn btn-primary btn-sm">Edit</a>
+                        <button class="btn btn-danger btn-sm" onclick="showDeletePopup(@item.EmployeeID)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this employee?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function applyFilters() {
+                var nameValue = $("#nameFilter").val().toLowerCase();
+                var positionValue = $("#positionFilter").val().toLowerCase();
+                var salaryValue = $("#salaryFilter").val().toLowerCase();
+
+                $("#employeeTable tbody tr").each(function () {
+                    var nameMatch = $(this).find("td").eq(0).text().toLowerCase().includes(nameValue);
+                    var positionMatch = positionValue === "" || $(this).find("td").eq(1).text().toLowerCase() === positionValue;
+                    var salaryMatch = salaryValue === "" || $(this).find("td").eq(4).text().toLowerCase().includes(salaryValue);
+
+                    $(this).toggle(nameMatch && positionMatch && salaryMatch);
+                });
+            }
+
+            $("#nameFilter, #positionFilter, #salaryFilter").on("input change", function () {
+                applyFilters();
+            });
+
+            $("#resetFilters").on("click", function () {
+                $("#nameFilter, #positionFilter, #salaryFilter").val("");
+                applyFilters();
+            });
+        });
+
+        function showDeletePopup(employeeID) {
+            var deleteUrl = "/Employee/Delete?EmployeeID=" + employeeID;
+            $("#confirmDeleteBtn").attr("href", deleteUrl);
+            $("#deleteModal").modal("show");
+        }
+    </script>
+}

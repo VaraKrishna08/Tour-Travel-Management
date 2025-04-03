@@ -1,0 +1,146 @@
+﻿@model IEnumerable<TourTravelApi_Consume.Models.FeedbackModel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">Feedback List</h2>
+<!-- Success and Delete Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["DeleteSuccessMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-x-circle me-2"></i>
+        @TempData["DeleteSuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Add Feedback Button -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <p class="mb-0">@TempData["Message"]</p>
+    <a class="btn btn-success" asp-controller="Feedback" asp-action="FeedbackAddEdit">Add Feedback</a>
+</div>
+
+<!-- Filters Section -->
+<div class="row g-3 mb-3">
+    <div class="col-md-3">
+        <input type="text" class="form-control" id="nameFilter" placeholder="Search by Full Name">
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="packageFilter">
+            <option value="">Filter by Package</option>
+            @foreach (var package in Model.Select(f => f.PackageName).Distinct())
+            {
+                <option value="@package">@package</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="ratingFilter">
+            <option value="">Filter by Rating</option>
+            @foreach (var rating in Model.Select(f => f.Rating).Distinct())
+            {
+                <option value="@rating">@rating</option>
+            }
+        </select>
+    </div>
+</div>
+
+<!-- Reset Button -->
+<div class="text-end mb-3">
+    <button class="btn btn-danger" id="resetFilters">Reset Filters</button>
+</div>
+
+<!-- Feedback List Table -->
+<div class="table-responsive">
+    <table class="table table-hover shadow-sm rounded" id="feedbackTable">
+        <thead class="table-dark">
+            <tr>
+                <th>Full Name</th>
+                <th>Package Name</th>
+                <th>Rating</th>
+                <th>Comments</th>
+                <th>Feedback Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FullName</td>
+                    <td>@item.PackageName</td>
+                    <td>@item.Rating</td>
+                    <td>@item.Comments</td>
+                    <td>@item.FeedbackDate.ToShortDateString()</td>
+                    <td>
+                        <a asp-controller="Feedback" asp-action="FeedbackAddEdit" asp-route-FeedbackID="@item.FeedbackID" class="btn btn-primary btn-sm px-3">Edit</a>
+                        <button class="btn btn-danger btn-sm px-3" onclick="showDeletePopup(@item.FeedbackID)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this feedback?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function applyFilters() {
+                var nameValue = $("#nameFilter").val().toLowerCase();
+                var packageValue = $("#packageFilter").val().toLowerCase();
+                var ratingValue = $("#ratingFilter").val().toLowerCase();
+
+                $("#feedbackTable tbody tr").each(function () {
+                    var nameMatch = $(this).find("td").eq(0).text().toLowerCase().includes(nameValue);
+                    var packageMatch = packageValue === "" || $(this).find("td").eq(1).text().toLowerCase() === packageValue;
+                    var ratingMatch = ratingValue === "" || $(this).find("td").eq(2).text().toLowerCase() === ratingValue;
+
+                    $(this).toggle(nameMatch && packageMatch && ratingMatch);
+                });
+            }
+
+            $("#nameFilter, #packageFilter, #ratingFilter").on("input change", function () {
+                applyFilters();
+            });
+
+            $("#resetFilters").on("click", function () {
+                $("#nameFilter, #packageFilter, #ratingFilter").val("");
+                applyFilters();
+            });
+        });
+
+        function showDeletePopup(feedbackID) {
+            var deleteUrl = "/Feedback/Delete?FeedbackID=" + feedbackID;
+            $("#confirmDeleteBtn").attr("href", deleteUrl);
+            $("#deleteModal").modal("show");
+        }
+    </script>
+}

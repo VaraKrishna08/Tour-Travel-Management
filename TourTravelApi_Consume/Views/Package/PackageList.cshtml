@@ -1,0 +1,153 @@
+﻿@model IEnumerable<TourTravelApi_Consume.Models.PackageModel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">Package List</h2>
+<!-- Success and Delete Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["DeleteSuccessMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-x-circle me-2"></i>
+        @TempData["DeleteSuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Add Package Button -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <p class="mb-0">@TempData["Message"]</p>
+    <a class="btn btn-success" asp-controller="Package" asp-action="PackageAddEdit">Add Package</a>
+</div>
+
+<!-- Filters Section -->
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <input type="text" class="form-control" id="packageNameFilter" placeholder="Search by Package Name">
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" id="destinationFilter">
+            <option value="">Filter by Destination</option>
+            @foreach (var destination in Model.Select(p => p.DestinationName).Distinct())
+            {
+                <option value="@destination">@destination</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" id="statusFilter">
+            <option value="">Filter by Status</option>
+            @foreach (var status in Model.Select(p => p.Status).Distinct())
+            {
+                <option value="@status">@status</option>
+            }
+        </select>
+    </div>
+</div>
+
+<!-- Reset Button -->
+<div class="text-end mb-3">
+    <button class="btn btn-danger" id="resetFilters">Reset Filters</button>
+</div>
+
+<!-- Package Table -->
+<div class="table-responsive">
+    <table class="table table-striped table-hover shadow rounded" id="packageTable">
+        <thead class="table-dark">
+            <tr>
+                <th>Package Name</th>
+                <th>Image</th>
+                <th>Destination</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="fw-bold">@item.PackageName</td>
+                    <td>
+                        <img src="@item.ImageUrl" alt="@item.PackageName" class="rounded shadow-sm" style="width:100px; height:auto;">
+                    </td>
+                    <td>@item.DestinationName</td>
+                    <td>@item.Description</td>
+                    <td>₹@item.Price</td>
+                    <td>@item.Duration</td>
+                    <td>
+                        <span class="badge @(item.Status == "Active" ? "bg-success" : "bg-danger")">@item.Status</span>
+                    </td>
+                    <td>
+                        <a asp-controller="Package" asp-action="PackageAddEdit" asp-route-PackageID="@item.PackageID" class="btn btn-primary btn-sm">Edit</a>
+                        <button class="btn btn-danger btn-sm" onclick="showDeletePopup(@item.PackageID)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this package?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+              $(document).ready(function () {
+            function applyFilters() {
+                var packageName = $("#packageNameFilter").val().toLowerCase();
+                var destination = $("#destinationFilter").val().toLowerCase();
+                var status = $("#statusFilter").val().toLowerCase().trim();
+
+                $("#packageTable tbody tr").each(function () {
+                    var packageMatch = $(this).find("td").eq(0).text().toLowerCase().includes(packageName);
+                    var destinationMatch = destination === "" || $(this).find("td").eq(2).text().toLowerCase() === destination;
+                    var statusMatch = status === "" || $(this).find("td").eq(6).text().trim().toLowerCase().includes(status);
+
+                    $(this).toggle(packageMatch && destinationMatch && statusMatch);
+                });
+            }
+
+            $("#packageNameFilter, #destinationFilter, #statusFilter").on("input change", function () {
+                applyFilters();
+            });
+
+            $("#resetFilters").on("click", function () {
+                $("#packageNameFilter, #destinationFilter, #statusFilter").val("");
+                applyFilters();
+            });
+        });
+
+        function showDeletePopup(packageID) {
+            $("#confirmDeleteBtn").attr("href", "/Package/Delete?PackageID=" + packageID);
+            $("#deleteModal").modal("show");
+        }
+    </script>
+}

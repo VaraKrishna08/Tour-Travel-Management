@@ -1,0 +1,128 @@
+﻿@model TourTravelApi_Consume.Models.PaymentModel
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm @((Model.PaymentID == null) ? "Submission" : "Update")</h5>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to @((Model.PaymentID == null) ? "submit this Payment?" : "update this Payment?")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="confirmYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Alert -->
+<div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert" style="display:none;">
+    <i class="bi bi-check-circle" style="margin-right: 10px;"></i>
+    <span id="successMessage"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@((Model.PaymentID == null) ? "Add Payment" : "Edit Payment")</h5>
+
+        <!-- Form for Add/Edit Payment -->
+        <form id="PaymentForm" asp-controller="Payment" asp-action="Save" method="post">
+            <input type="hidden" asp-for="PaymentID" />
+
+            <div class="row mb-3">
+                <label for="BookingID" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> BookingID
+                </label>
+                <div class="col-sm-10">
+                    <select class="form-control" asp-for="BookingID" asp-items="@(new SelectList(ViewBag.BookingList, "BookingID", "BookingDate"))"></select>
+                    <span asp-validation-for="BookingID" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="PaymentDate" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> PaymentDate
+                </label>
+                <div class="col-sm-10">
+                    <input type="datetime-local" class="form-control" asp-for="PaymentDate" id="PaymentDate" />
+                    <span asp-validation-for="PaymentDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="PaymentMode" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> PaymentMode
+                </label>
+                <div class="col-sm-10">
+                    <select class="form-control" asp-for="PaymentMode" id="PaymentMode" >
+                        <option value="">Select Model</option>
+                        <option value="Credit Card">Credit card</option>
+                        <option value="Debit Card">Debit card</option>
+                        <option value="Cash">Cash </option>
+                        <option value="UPI">UPI </option>
+                        </select>
+                        <span asp-validation-for="PaymentMode" class="text-danger"></span>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <label for="AmountPaid" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> AmountPaid
+                </label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" asp-for="AmountPaid" id="AmountPaid" />
+                    <span asp-validation-for="AmountPaid" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="PaymentStatus" class="col-sm-2 col-form-label">
+                    <span class="text-danger">*</span> PaymentStatus
+                </label>
+                <div class="col-sm-10">
+                    <select class="form-control" asp-for="PaymentStatus" id="PaymentStatus">
+                        <option value="">Select Status</option>
+                        <option value="Success">Success </option>
+                        <option value="Pending">Pending</option>
+                        <option value="Failed">Failed </option>
+                    </select>                    
+                    <span asp-validation-for="PaymentStatus" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-sm-10 offset-sm-2">
+                    <button type="button" class="btn btn-success" id="confirmSubmit">
+                        @((Model.PaymentID == null) ? "Add" : "Update")
+                    </button>
+                    <a href="@Url.Action("PaymentList", "Payment")" class="btn btn-info">Back</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#confirmSubmit').on('click', function () {
+                if ($('#PaymentForm').valid()) {
+                    $('#confirmModal').modal('show');
+                }
+            });
+
+            $('#confirmYes').on('click', function () {
+                $('#PaymentForm').submit();
+            });
+        });
+    </script>
+}
